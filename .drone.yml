@@ -26,7 +26,7 @@ pipeline:
       - mypy airflow tests
 
   build_assets:
-    image: 325714046698.dkr.ecr.eu-west-1.amazonaws.com/skyscanner/python-3.6-build:1.1.20
+    image: 325714046698.dkr.ecr.eu-west-1.amazonaws.com/skyscanner/node-lts-carbon-build:100.2.1
     pull: true
     environment:
       - PIP_CACHE_DIR=/drone/.pip-cache
