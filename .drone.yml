@@ -33,7 +33,8 @@ pipeline:
       - PIP_CONFIG_FILE=pip.conf
     commands:
       - apt update
-      - apt -y install nodejs
+      - apt -h -y install nodejs
+      - apt -h -y install npm
       - python setup.py compile_assets
 
   pypi:
