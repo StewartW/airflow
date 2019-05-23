@@ -32,6 +32,7 @@ from werkzeug.contrib.fixers import ProxyFix
 
 from airflow import settings
 from airflow import configuration as conf
+from airflow.utils.module_loading import import_string
 from airflow.logging_config import configure_logging
 from airflow.www_rbac.static_config import configure_manifest_files
 
@@ -50,9 +51,9 @@ def create_app(config=None, session=None, testing=False, app_name="Airflow"):
 
     app.config.from_pyfile(settings.WEBSERVER_CONFIG, silent=True)
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['WTF_CSRF_ENABLED'] = False
     app.config['APP_NAME'] = app_name
     app.config['TESTING'] = testing
-
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     app.config['SESSION_COOKIE_SECURE'] = conf.getboolean('webserver', 'COOKIE_SECURE')
     app.config['SESSION_COOKIE_SAMESITE'] = conf.get('webserver', 'COOKIE_SAMESITE')
@@ -76,6 +77,7 @@ def create_app(config=None, session=None, testing=False, app_name="Airflow"):
 
     configure_logging()
     configure_manifest_files(app)
+    configure_security(app)
 
     with app.app_context():
 
@@ -207,6 +209,12 @@ def create_app(config=None, session=None, testing=False, app_name="Airflow"):
     return app, appbuilder
 
 
+def configure_security(app):
+    security_manager = conf.get('webserver', 'SECURITY_MANAGER_CLASS')
+    if security_manager:
+        app.config['SECURITY_MANAGER_CLASS'] = import_string(security_manager)
+
+
 def root_app(env, resp):
     resp('404 Not Found', [('Content-Type', 'text/plain')])
     return [b'Apache Airflow is not at this location']
@@ -218,7 +226,6 @@ def cached_app(config=None, session=None, testing=False):
         base_url = urlparse(conf.get('webserver', 'base_url'))[2]
         if not base_url or base_url == '/':
             base_url = ""
-
         app, _ = create_app(config, session, testing)
         app = DispatcherMiddleware(root_app, {base_url: app})
     return app
