@@ -1,0 +1,13 @@
+---
+version: '1'
+type: library
+component:
+  name: apache-airflow-skyscanner
+  owner: HoneyBadgers
+  description: Fork of Apache Airflow
+  awsProjectTag: dagger
+  serviceClass: economy-class
+  personalDataHandling: none
+  soxScope: False
+  paymentProcessing: False
+
