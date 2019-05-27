@@ -32,7 +32,6 @@ from werkzeug.contrib.fixers import ProxyFix
 
 from airflow import settings
 from airflow import configuration as conf
-from airflow.utils.module_loading import import_string
 from airflow.logging_config import configure_logging
 from airflow.www_rbac.static_config import configure_manifest_files
 
@@ -41,6 +40,7 @@ appbuilder = None
 csrf = CSRFProtect()
 
 log = logging.getLogger(__name__)
+
 
 def create_app(config=None, session=None, testing=False, app_name="Airflow"):
     global app, appbuilder
@@ -51,7 +51,7 @@ def create_app(config=None, session=None, testing=False, app_name="Airflow"):
 
     app.config.from_pyfile(settings.WEBSERVER_CONFIG, silent=True)
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['WTF_CSRF_ENABLED'] = False
+    app.config['WTF_CSRF_ENABLED'] = app.config.get('WTF_CSRF_ENABLED')
     app.config['APP_NAME'] = app_name
     app.config['TESTING'] = testing
     app.config['SESSION_COOKIE_HTTPONLY'] = True
