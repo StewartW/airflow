@@ -77,14 +77,13 @@ def create_app(config=None, session=None, testing=False, app_name="Airflow"):
 
     configure_logging()
     configure_manifest_files(app)
-    configure_security(app)
 
     with app.app_context():
 
         from airflow.www_rbac.security import AirflowSecurityManager
         security_manager_class = app.config.get('SECURITY_MANAGER_CLASS') or \
             AirflowSecurityManager
-
+        logging.info(security_manager_class)
         if not issubclass(security_manager_class, AirflowSecurityManager):
             raise Exception(
                 """Your CUSTOM_SECURITY_MANAGER must now extend AirflowSecurityManager,
@@ -207,12 +206,6 @@ def create_app(config=None, session=None, testing=False, app_name="Airflow"):
             settings.Session.remove()
 
     return app, appbuilder
-
-
-def configure_security(app):
-    security_manager = conf.get('webserver', 'SECURITY_MANAGER_CLASS')
-    if security_manager:
-        app.config['SECURITY_MANAGER_CLASS'] = import_string(security_manager)
 
 
 def root_app(env, resp):
